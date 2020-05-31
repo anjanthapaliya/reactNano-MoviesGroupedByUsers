@@ -96,12 +96,30 @@ const movies = {
     name: 'Get Out',
   },
 };
+const moviesWithLikes = profiles.map((item) => item.favoriteMovieID).filter((v, i, a) => a.indexOf(v) === i); 
+const allMoviesIDs = Object.keys(movies).map((i) => movies[i].id.toString())
+
+
+// filter the items from the moviesWithLikes list, out of the allMoviesIDs list
+var movieWithNoLike = allMoviesIDs.filter((item) => {
+  return !moviesWithLikes.includes(item);
+}).map((item) => Number(item));
+
+function getMovieNameById(movieid){
+ var allMovies = Object.keys(movies).map((i) => movies[i]);
+ var movieFiltered = allMovies.filter(item => item.id ===movieid);
+ return movieFiltered;
+}
+const notfavoritedMovies = [];
+movieWithNoLike.forEach((movieID) => notfavoritedMovies.push(getMovieNameById(movieID)));
+
+//Object.keys(movies).map((i) => movies[i]).filter((item) => item.id === 3)
 
 const namesGroupedByMovie = ((profiles, users, movies) => 
   profiles.reduce ((
     accumulator, {userID, favoriteMovieID}, _, __, 
-    {name} = movies[favoriteMovieID],
-    {name: person} = users[userID] 
+    {name} = movies[favoriteMovieID]|| {name: 'Unknown Movie'},
+    {name: person} = users[userID] || {name: 'Unknown Person'}
   ) => ({
     ...accumulator,
     [name]: [... (accumulator[name] || []), person]
@@ -109,6 +127,7 @@ const namesGroupedByMovie = ((profiles, users, movies) =>
 
 class App extends Component {
   render() {
+    console.log(this.props.unpopularityData);
     return (
       <div className="App">
         <header className="App-header">
@@ -116,7 +135,7 @@ class App extends Component {
           <h1 className="App-title">ReactND - Coding Practice</h1>
         </header>
         <h2>How Popular is Your Favorite Movie?</h2>
-		<MoviePopularity popularityData={namesGroupedByMovie} />
+		<MoviePopularity popularityData={namesGroupedByMovie} unpopularityData ={notfavoritedMovies}/>
       </div>
     );
   }
